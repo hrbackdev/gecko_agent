@@ -4,6 +4,7 @@ import threading
 import time
 import json
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
 
@@ -22,6 +23,9 @@ class AppState:
         self.conversation = []
         self.camera_active = False
         self.frame = None
+        self.classes = {}
+        self.detection = False
+        self.analysis_prompt = ""
         
     def add_message(self, role, content):
         self.conversation.append({
@@ -51,6 +55,13 @@ def generate_frames():
             app_state.frame = frame
         time.sleep(0.03)
 
+@app.route('/get_config')
+def get_config():
+    return {
+        "analysis_prompt": app_state.analysis_prompt,
+        "detection": app_state.detection
+    }
+
 # Iniciar hilo de la cámara
 if app_state.camera_active:
     camera_thread = threading.Thread(target=generate_frames)
@@ -69,9 +80,10 @@ def video_feed():
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + app_state.frame + b'\r\n')
             time.sleep(0.03)
-    
+
     return Response(generate(),
                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
     data = request.json
@@ -80,9 +92,21 @@ def send_message():
     if user_input:
         # Usando el nuevo método add_message
         app_state.add_message("user", user_input)
+
+        response = send_request({"mensaje": user_input})
+
+        app_state.detection = response['deteccion']
+        app_state.classes = response['classes']
+        app_state.analysis_prompt = response['analysis_prompt']
+
+        with open("label.txt", "w", encoding="utf-8") as f:
+            if response['deteccion']:
+                f.write(f"{response['classes']}")
+            else:
+                f.write("")
         
         # Simular respuesta de IA
-        app_state.add_message("assistant", f"Recibí: '{user_input}'. Contexto actualizado correctamente.")
+        app_state.add_message("assistant", f"{response['response']}")
         
         # Preparar respuesta para el cliente
         display_messages = [
@@ -96,6 +120,23 @@ def send_message():
         })
     
     return jsonify({"status": "error", "message": "Mensaje vacío"})
+
+def send_request(payload):
+    try:
+        url = "http://192.168.1.27:5000/chat"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response.raise_for_status()  # Lanza un error si el código de estado es 4xx o 5xx
+
+        # Si la respuesta es válida, procesamos el JSON
+        return response.json()
+
+    except requests.exceptions.HTTPError as e:
+        print(f" Error HTTP: {e} (Código {response.status_code})")
+    except Exception:
+        print(f" Error ")
 
 @app.route('/new_prompt', methods=['POST'])
 def new_prompt():
