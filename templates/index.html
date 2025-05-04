@@ -1,247 +1,269 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente con Visión</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        .container {
-            display: flex;
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            gap: 20px;
-        }
-        .panel {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .camera-panel {
-            flex: 2;
-            padding: 15px;
-        }
-        .chat-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-        }
-        .panel-title {
-            font-size: 1.5rem;
-            font-weight: 500;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        #camera-feed {
-            width: 100%;
-            height: 480px;
-            background-color: #000;
-            border-radius: 5px;
-            object-fit: cover;
-        }
-        .camera-placeholder {
-            width: 100%;
-            height: 480px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #eee;
-            color: #777;
-            border-radius: 5px;
-        }
-        #chat-display {
-            flex: 1;
-            height: 400px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fafafa;
-        }
-        .message {
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        .user-message {
-            color: #2c7be5;
-            font-weight: 500;
-        }
-        .assistant-message {
-            color: #00a854;
-        }
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        #message-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn-send {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-send:hover {
-            background-color: #45a049;
-        }
-        .btn-new {
-            background-color: #f44336;
-            color: white;
-        }
-        .btn-new:hover {
-            background-color: #d32f2f;
-        }
-        .btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gecko Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+        --bg-dark: #121212;
+        --bg-light: #d4d4d4; /* más gris en lugar de blanco puro */
+        --card-dark: #1e1e1e;
+        --card-light: #e1e1e1;
+        --text-dark: #eaeaea;
+        --text-light: #1a1a1a;
+        --border-dark: #444;
+        --border-light: #bbb;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    header {
+      width: 100%;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .title {
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: 1px solid var(--border-dark);
+      color: inherit;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: row;
+      padding: 2rem;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .camera {
+      width: 640px;
+      height: 480px;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-dark);
+    }
+
+    .chat-box {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #chat-display {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border-dark);
+      background-color: var(--card-dark);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-area {
+      display: flex;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 0.7rem;
+      border: 1px solid var(--border-dark);
+      background-color: var(--card-dark);
+      color: var(--text-dark);
+    }
+
+    button.send-btn {
+      padding: 0.7rem 1rem;
+      background-color: #3f3f3f;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Light Theme */
+    body.light {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    body.light header {
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    body.light .camera {
+      border: 1px solid var(--border-light);
+    }
+
+    body.light #chat-display {
+      background-color: var(--card-light);
+      border: 1px solid var(--border-light);
+      color: var(--text-light);
+    }
+
+    body.light #message-input {
+      background-color: var(--card-light);
+      color: var(--text-light);
+      border: 1px solid var(--border-light);
+    }
+
+    body.light .toggle-btn {
+      border: 1px solid var(--border-light);
+    }
+
+    body.light button.send-btn {
+      background-color: #333;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="panel camera-panel">
-            <div class="panel-title">Vista de la Cámara</div>
-            {% if camera_active %}
-                <img id="camera-feed" src="{{ url_for('video_feed') }}">
-            {% else %}
-                <div class="camera-placeholder">
-                    Cámara no disponible
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="panel chat-panel">
-            <div class="panel-title">Chat con Asistente</div>
-            
-            <div id="chat-display">
-                <!-- Los mensajes se cargarán aquí dinámicamente -->
-            </div>
-            
-            <div class="input-group">
-                <input type="text" id="message-input" placeholder="Escribe tu mensaje...">
-                <button class="btn btn-send" id="send-btn">Enviar</button>
-            </div>
-        </div>
+
+  <header>
+    <div class="title">GECKO AGENT</div>
+    <div>DERECHOS RESERVADOS 2025</div>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light');
+        }
+    </script>
+    <button class="toggle-btn" onclick="toggleTheme()">Cambiar Tema</button>
+  </header>
+
+  <div class="main-container">
+    <div class="camera">
+      {% if camera_active %}
+        <img src="{{ url_for('video_feed') }}" style="max-width: 100%; max-height: 100%;" />
+      {% else %}
+        <span>Cámara no disponible</span>
+      {% endif %}
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatDisplay = document.getElementById('chat-display');
-            const messageInput = document.getElementById('message-input');
-            const sendBtn = document.getElementById('send-btn');
-            const newPromptBtn = document.getElementById('new-prompt-btn');
-            
-            // Cargar conversación existente
-            loadConversation();
-            
-            // Enviar mensaje al presionar Enter o el botón
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-            
-            sendBtn.addEventListener('click', sendMessage);
-            newPromptBtn.addEventListener('click', newPrompt);
-            
-            function loadConversation() {
-                return fetch('/get_conversation')  // 👈 Retornamos la promesa para encadenarla después
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.messages && data.messages.length > 0) {
-                            chatDisplay.innerHTML = ''; // Limpiamos el chat antes de cargar los mensajes
-                            data.messages.forEach(msg => {
-                                appendMessage(msg);
-                            });
-                        }
-                    });
+    <div class="chat-box">
+      <div id="chat-display"></div>
+      <div class="input-area">
+        <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+        <button class="send-btn" id='send-btn' onclick="sendMessage()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const chatDisplay = document.getElementById('chat-display');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        // Cargar conversación existente
+        loadConversation();
+        
+        // Enviar mensaje al presionar Enter o el botón
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
             }
+        });
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        function loadConversation() {
+            return fetch('/get_conversation')  // 👈 Retornamos la promesa para encadenarla después
+                .then(response => response.json())
+                .then(data => {
+                    if (data.messages && data.messages.length > 0) {
+                        chatDisplay.innerHTML = ''; // Limpiamos el chat antes de cargar los mensajes
+                        data.messages.forEach(msg => {
+                            appendMessage(msg);
+                        });
+                    }
+                });
+        }
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message === '') return;
             
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message === '') return;
-                
-                // Mostrar mensaje del usuario inmediatamente
-                appendMessage(`Tú: ${message}`);
-                messageInput.value = '';
-                
-                // Enviar al servidor
-                fetch('/send_message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+            // Mostrar mensaje del usuario inmediatamente
+            appendMessage(`Tú: ${message}`);
+            messageInput.value = '';
+            
+            // Enviar al servidor
+            fetch('/send_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    return loadConversation();  // 👈 Esperamos a que termine
+                }
+            })
+            .then(() => {
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;  // Scroll después de cargar todo
+            })
+            .catch(error => {
+                console.error("Error al enviar/cargar mensajes:", error);
+            });
+        }
+        
+        function newPrompt() {
+            if (confirm('¿Estás seguro de querer reiniciar la conversación?')) {
+                fetch('/new_prompt', {
+                    method: 'POST'
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        return loadConversation();  // 👈 Esperamos a que termine
+                        chatDisplay.innerHTML = '';
+                        appendMessage(data.message, true);
                     }
-                })
-                .then(() => {
-                    chatDisplay.scrollTop = chatDisplay.scrollHeight;  // Scroll después de cargar todo
-                })
-                .catch(error => {
-                    console.error("Error al enviar/cargar mensajes:", error);
                 });
             }
+        }
+        
+        function appendMessage(text, isSystem = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
             
-            function newPrompt() {
-                if (confirm('¿Estás seguro de querer reiniciar la conversación?')) {
-                    fetch('/new_prompt', {
-                        method: 'POST'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            chatDisplay.innerHTML = '';
-                            appendMessage(data.message, true);
-                        }
-                    });
-                }
+            if (text.startsWith('Tú:')) {
+                messageDiv.classList.add('user-message');
+            } else if (text.startsWith('Asistente:')) {
+                messageDiv.classList.add('assistant-message');
+            } else if (isSystem) {
+                messageDiv.style.color = '#888';
+                messageDiv.style.fontStyle = 'italic';
             }
             
-            function appendMessage(text, isSystem = false) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message';
-                
-                if (text.startsWith('Tú:')) {
-                    messageDiv.classList.add('user-message');
-                } else if (text.startsWith('Asistente:')) {
-                    messageDiv.classList.add('assistant-message');
-                } else if (isSystem) {
-                    messageDiv.style.color = '#888';
-                    messageDiv.style.fontStyle = 'italic';
-                }
-                
-                messageDiv.textContent = text;
-                chatDisplay.appendChild(messageDiv);
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-            }
-        });
-    </script>
+            messageDiv.textContent = text;
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        }
+    });
+</script>
+
 </body>
 </html>
